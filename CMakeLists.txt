@@ -33,6 +33,10 @@ add_executable(StreamX WIN32
   src/core/Encoders.cpp src/core/Encoders.h
   src/core/ClipIt.cpp src/core/ClipIt.h
   src/core/Streamer.cpp src/core/Streamer.h
+  src/core/PerfMonitor.cpp src/core/PerfMonitor.h
+  src/core/Hotkeys.cpp src/core/Hotkeys.h
+  src/core/Hardware.cpp src/core/Hardware.h
+  src/core/GameMode.cpp src/core/GameMode.h
   src/ui/MainWindow.cpp src/ui/MainWindow.h
   src/ui/PreviewWidget.cpp src/ui/PreviewWidget.h
   resources/streamx.qrc
@@ -40,7 +44,7 @@ add_executable(StreamX WIN32
 target_include_directories(StreamX PRIVATE src)
 target_compile_definitions(StreamX PRIVATE STREAMX_VERSION="${PROJECT_VERSION}" UNICODE _UNICODE NOMINMAX WIN32_LEAN_AND_MEAN)
 target_compile_options(StreamX PRIVATE /utf-8 /Zc:__cplusplus /permissive- /W3 /MP)
-target_link_libraries(StreamX PRIVATE OBS::libobs Qt6::Widgets Qt6::Network)
+target_link_libraries(StreamX PRIVATE OBS::libobs Qt6::Widgets Qt6::Network pdh psapi dxgi)
 set_target_properties(StreamX PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${STREAMX_RUNDIR}/bin/64bit"
   RUNTIME_OUTPUT_DIRECTORY_RELEASE "${STREAMX_RUNDIR}/bin/64bit"

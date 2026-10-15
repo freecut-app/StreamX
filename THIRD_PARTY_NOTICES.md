@@ -11,6 +11,8 @@ O StreamX é distribuído sob a **GNU General Public License v2 ou posterior** (
 | **libcurl, mbedTLS, librist, libsrt, jansson, RNNoise, Speex DSP, FreeType, zlib, LuaJIT (desativado)** | rede, RTMPS, supressão de ruído, texto | licenças MIT/BSD/Apache/zlib | https://github.com/obsproject/obs-deps |
 | **Microsoft Visual C++ Runtime** (vcruntime140, msvcp140…) | runtime do C++ | Licença de redistribuição do Visual Studio | https://visualstudio.microsoft.com/license-terms/ |
 
+Versões exatas usadas no instalador 1.0.0: **OBS Studio 32.2.2** (commit `ba2f32b`) e **obs-deps 2026-07-15** (`windows-deps-2026-07-15-x64` e `windows-deps-qt6-2026-07-15-x64`), baixados automaticamente pela build do OBS. Para recompilar tudo a partir do código-fonte, use `scripts/build-all.ps1` deste repositório.
+
 Os arquivos de licença originais de cada componente acompanham o código-fonte nos links acima.
 
 O StreamX é um projeto independente: não é afiliado ao OBS Project nem endossado por ele e não usa logotipos ou elementos gráficos do OBS. "OBS" e "OBS Studio" são marcas do OBS Project.

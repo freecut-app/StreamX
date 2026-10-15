@@ -1,6 +1,6 @@
 # StreamX 1.0.0 — relatório de testes
 
-Ambiente: Windows 11 25H2 (build 26200), Intel i5-10400F (12 threads), 32 GB RAM, NVIDIA RTX 3060 Ti (driver 32.0.16.1088), monitor LG UltraWide 2560×1080 @ 75 Hz, headset Logitech G321. Data: 15/10/2026.
+Ambiente: Windows 11 25H2 (build 26200), Intel i5-10400F (12 threads), 32 GB RAM, NVIDIA RTX 3060 Ti (driver 32.0.16.1088), monitor ultrawide 2560×1080 @ 75 Hz, headset USB. Data: 15/10/2026.
 
 Os testes automáticos rodam o StreamX de verdade, usando opções `--selftest-*` do próprio executável. Os arquivos gerados foram verificados com o **ffprobe** (codec, resolução, duração e faixas) e com a análise de brilho do ffmpeg (`signalstats`), para não aceitar vídeo preto.
 

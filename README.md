@@ -5,6 +5,10 @@
 <p align="center"><b>Gravação de tela, captura de jogos, clipes instantâneos e transmissão ao vivo para Windows.</b><br>
 Motor do OBS Studio (libobs 32.2.2) com interface, recursos e identidade próprios.</p>
 
+<p align="center"><a href="../../releases/latest"><b>⬇ Baixar o instalador para Windows</b></a> · Windows 10/11 64 bits · instala sem administrador</p>
+
+> O Windows SmartScreen pode avisar "aplicativo não reconhecido" porque o instalador não tem assinatura digital paga: clique em **Mais informações → Executar assim mesmo**.
+
 ## Recursos
 
 **Essenciais**

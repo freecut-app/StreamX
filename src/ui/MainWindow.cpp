@@ -71,10 +71,8 @@ void MainWindow::toggleRecording()
 		rec.stop();
 		return;
 	}
-	RecordSettings rs;
-	rs.path = Engine::defaultOutputDir() + "/StreamX " + QDateTime::currentDateTime().toString("yyyy-MM-dd HH-mm-ss") + ".mp4";
 	QString err;
-	if (!rec.start(rs, &err))
+	if (!rec.start(&err))
 		QMessageBox::critical(this, "Gravação", err);
 	updateStatus();
 }

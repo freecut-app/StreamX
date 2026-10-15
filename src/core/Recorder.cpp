@@ -1,10 +1,13 @@
 #include "Recorder.h"
-#include "Engine.h"
+#include "Encoders.h"
+#include "Settings.h"
 #include "Log.h"
 
+#include <QDateTime>
 #include <QDir>
 #include <QFileInfo>
 #include <QMetaObject>
+#include <QStorageInfo>
 
 namespace sx {
 
@@ -14,73 +17,49 @@ Recorder &Recorder::get()
 	return r;
 }
 
-obs_data_t *videoEncoderSettings(const QString &id, bool cq, int quality, int bitrate)
+QString Recorder::nextFileName(const QString &dir, const QString &prefix, const QString &ext)
 {
-	obs_data_t *s = obs_data_create();
-	if (id.startsWith("obs_nvenc")) {
-		obs_data_set_string(s, "rate_control", cq ? "CQP" : "CBR");
-		obs_data_set_int(s, "cqp", quality);
-		obs_data_set_int(s, "bitrate", bitrate);
-		obs_data_set_string(s, "preset2", "p5");
-		obs_data_set_string(s, "tune", "hq");
-		obs_data_set_string(s, "multipass", "qres");
-		obs_data_set_int(s, "keyint_sec", 2);
-	} else if (id.contains("amf")) {
-		obs_data_set_string(s, "rate_control", cq ? "CQP" : "CBR");
-		obs_data_set_int(s, "cqp", quality);
-		obs_data_set_int(s, "bitrate", bitrate);
-		obs_data_set_string(s, "preset", "quality");
-		obs_data_set_int(s, "keyint_sec", 2);
-	} else if (id.startsWith("obs_qsv")) {
-		obs_data_set_string(s, "rate_control", cq ? "CQP" : "CBR");
-		obs_data_set_int(s, "cqp", quality);
-		obs_data_set_int(s, "bitrate", bitrate);
-		obs_data_set_int(s, "keyint_sec", 2);
-	} else { // x264
-		obs_data_set_string(s, "rate_control", cq ? "CRF" : "CBR");
-		obs_data_set_int(s, "crf", quality);
-		obs_data_set_int(s, "bitrate", bitrate);
-		obs_data_set_string(s, "preset", "veryfast");
-		obs_data_set_int(s, "keyint_sec", 2);
-	}
-	return s;
+	QDir().mkpath(dir);
+	const QString base = dir + "/" + prefix + " " + QDateTime::currentDateTime().toString("yyyy-MM-dd HH-mm-ss");
+	QString path = base + "." + ext;
+	for (int i = 2; QFileInfo::exists(path); i++)
+		path = QString("%1 (%2).%3").arg(base).arg(i).arg(ext);
+	return path;
 }
 
-bool Recorder::start(const RecordSettings &rs, QString *error)
+bool Recorder::start(QString *error, const QString &requested)
 {
 	if (isActive())
 		return true;
-	const QString enc = rs.encoderId.isEmpty() ? Engine::get().bestVideoEncoder() : rs.encoderId;
-	if (enc.isEmpty()) {
-		if (error)
-			*error = "Nenhum codificador de vídeo disponível.";
-		return false;
-	}
-	QDir().mkpath(QFileInfo(rs.path).absolutePath());
+	const auto &p = Settings::get().p();
+	const bool hybrid = p.recFormat == "hybrid_mp4";
+	const QString ext = hybrid ? "mp4" : (QStringList{"mp4", "mkv", "mov"}.contains(p.recFormat) ? p.recFormat : "mp4");
+	const QString path = requested.isEmpty() ? nextFileName(Settings::get().recordingDir(), "StreamX", ext) : requested;
+	QDir().mkpath(QFileInfo(path).absolutePath());
 
-	OBSDataAutoRelease vs = videoEncoderSettings(enc, rs.constantQuality, rs.quality, rs.bitrateKbps);
-	venc_ = obs_video_encoder_create(enc.toUtf8().constData(), "streamx_rec_video", vs, nullptr);
-	OBSDataAutoRelease as = obs_data_create();
-	obs_data_set_int(as, "bitrate", rs.audioKbps);
-	aenc_ = obs_audio_encoder_create("ffmpeg_aac", "streamx_rec_audio", as, 0, nullptr);
-	if (!venc_ || !aenc_) {
+	const QStorageInfo disk(QFileInfo(path).absolutePath());
+	if (disk.isValid() && disk.bytesAvailable() < 500ll * 1024 * 1024) {
 		if (error)
-			*error = "Falha ao criar os codificadores (" + enc + ").";
+			*error = QString("Pouco espaço em disco (%1 MB livres) em %2.").arg(disk.bytesAvailable() / 1048576).arg(disk.rootPath());
 		return false;
 	}
-	obs_encoder_set_video(venc_, obs_get_video());
-	obs_encoder_set_audio(aenc_, obs_get_audio());
+	if (!EncoderPool::get().acquireRecording(error))
+		return false;
+	auto &pool = EncoderPool::get();
 
 	OBSDataAutoRelease os = obs_data_create();
-	obs_data_set_string(os, "path", QDir::toNativeSeparators(rs.path).toUtf8().constData());
-	output_ = obs_output_create("ffmpeg_muxer", "streamx_recording", os, nullptr);
+	obs_data_set_string(os, "path", QDir::toNativeSeparators(path).toUtf8().constData());
+	output_ = obs_output_create(hybrid ? "mp4_output" : "ffmpeg_muxer", "StreamX: gravação", os, nullptr);
 	if (!output_) {
 		if (error)
 			*error = "Falha ao criar a saída de gravação.";
 		return false;
 	}
-	obs_output_set_video_encoder(output_, venc_);
-	obs_output_set_audio_encoder(output_, aenc_, 0);
+	obs_output_set_video_encoder(output_, pool.video());
+	size_t idx = 0;
+	for (int t = 0; t < 6; t++)
+		if (obs_encoder_t *a = pool.audio(t))
+			obs_output_set_audio_encoder(output_, a, idx++);
 	signal_handler_connect(obs_output_get_signal_handler(output_), "stop", onStop, this);
 
 	if (!obs_output_start(output_)) {
@@ -89,12 +68,13 @@ bool Recorder::start(const RecordSettings &rs, QString *error)
 			*error = QString("Não foi possível iniciar a gravação: %1").arg(e ? e : "erro desconhecido");
 		signal_handler_disconnect(obs_output_get_signal_handler(output_), "stop", onStop, this);
 		output_ = nullptr;
+		pool.releaseIfIdle();
 		return false;
 	}
-	lastFile_ = rs.path;
+	lastFile_ = path;
 	timer_.start();
-	logInfo(QString("Gravação iniciada: %1 (%2)").arg(rs.path, enc));
-	emit started(rs.path);
+	logInfo(QString("Gravação iniciada: %1 (%2, %3 faixa(s) de áudio)").arg(path, pool.videoId()).arg(idx));
+	emit started(path);
 	return true;
 }
 
@@ -118,8 +98,7 @@ void Recorder::onStop(void *data, calldata_t *cd)
 		if (self->output_)
 			signal_handler_disconnect(obs_output_get_signal_handler(self->output_), "stop", onStop, self);
 		self->output_ = nullptr;
-		self->venc_ = nullptr;
-		self->aenc_ = nullptr;
+		EncoderPool::get().releaseIfIdle();
 		logInfo(QString("Gravação finalizada (código %1): %2").arg(code).arg(self->lastFile_));
 		emit self->stopped(self->lastFile_, code, msg);
 	}, Qt::QueuedConnection);

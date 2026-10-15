@@ -1,5 +1,6 @@
 #include "Engine.h"
 #include "Log.h"
+#include "Settings.h"
 
 #include <QCoreApplication>
 #include <QDir>
@@ -59,6 +60,11 @@ bool Engine::startup(QString *error)
 			video_.outHeight = 1080;
 		}
 	}
+	// O perfil pode fixar resolução e FPS
+	const auto &ps = Settings::get().p();
+	if (ps.baseW > 0 && ps.baseH > 0) { video_.baseWidth = uint32_t(ps.baseW) & ~1u; video_.baseHeight = uint32_t(ps.baseH) & ~1u; }
+	if (ps.outW > 0 && ps.outH > 0) { video_.outWidth = uint32_t(ps.outW) & ~1u; video_.outHeight = uint32_t(ps.outH) & ~1u; }
+	if (ps.fps >= 10 && ps.fps <= 240) video_.fps = uint32_t(ps.fps);
 	if (!resetVideo(video_, error))
 		return false;
 

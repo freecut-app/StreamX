@@ -29,6 +29,10 @@ add_executable(StreamX WIN32
   src/core/Log.cpp src/core/Log.h
   src/core/SceneManager.cpp src/core/SceneManager.h
   src/core/Recorder.cpp src/core/Recorder.h
+  src/core/Settings.cpp src/core/Settings.h
+  src/core/Encoders.cpp src/core/Encoders.h
+  src/core/ClipIt.cpp src/core/ClipIt.h
+  src/core/Streamer.cpp src/core/Streamer.h
   src/ui/MainWindow.cpp src/ui/MainWindow.h
   src/ui/PreviewWidget.cpp src/ui/PreviewWidget.h
   resources/streamx.qrc

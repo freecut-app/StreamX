@@ -1,0 +1,27 @@
+{
+  "version": 8,
+  "cmakeMinimumRequired": { "major": 3, "minor": 28, "patch": 0 },
+  "configurePresets": [
+    {
+      "name": "streamx",
+      "displayName": "StreamX (libobs + plugins, VS 2022)",
+      "inherits": ["windows-x64"],
+      "generator": "Visual Studio 17 2022",
+      "architecture": "x64,version=10.0.22621.0",
+      "binaryDir": "${sourceDir}/build_streamx",
+      "cacheVariables": {
+        "ENABLE_BROWSER": false,
+        "ENABLE_SCRIPTING": false,
+        "ENABLE_VST": false,
+        "ENABLE_AJA": false,
+        "ENABLE_DECKLINK": false,
+        "ENABLE_WEBRTC": false,
+        "ENABLE_CCACHE": false,
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/../obs-install"
+      }
+    }
+  ],
+  "buildPresets": [
+    { "name": "streamx", "configurePreset": "streamx", "configuration": "RelWithDebInfo" }
+  ]
+}

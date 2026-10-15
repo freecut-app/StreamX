@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.28)
-project(StreamX VERSION 0.1.0 LANGUAGES C CXX)
+project(StreamX VERSION 1.0.0 LANGUAGES C CXX RC)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -37,6 +37,15 @@ add_executable(StreamX WIN32
   src/core/Hotkeys.cpp src/core/Hotkeys.h
   src/core/Hardware.cpp src/core/Hardware.h
   src/core/GameMode.cpp src/core/GameMode.h
+  src/core/Apply.cpp src/core/Apply.h
+  src/control/ControlServer.cpp src/control/ControlServer.h
+  src/integration/FreeCutBridge.cpp src/integration/FreeCutBridge.h
+  src/ui/PropertiesView.cpp src/ui/PropertiesView.h
+  src/ui/SourceDialogs.cpp src/ui/SourceDialogs.h
+  src/ui/MixerWidget.cpp src/ui/MixerWidget.h
+  src/ui/SettingsDialog.cpp src/ui/SettingsDialog.h
+  src/ui/Pages.cpp src/ui/Pages.h
+  resources/streamx.rc
   src/ui/MainWindow.cpp src/ui/MainWindow.h
   src/ui/PreviewWidget.cpp src/ui/PreviewWidget.h
   resources/streamx.qrc

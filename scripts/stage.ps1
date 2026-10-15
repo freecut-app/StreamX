@@ -14,6 +14,15 @@ $excluirDirs = @('data\obs-studio', 'data\obs-plugins\frontend-tools', 'data\obs
 New-Item -ItemType Directory -Force $dst | Out-Null
 robocopy $src $dst /E /NFL /NDL /NJH /NJS /NP /XF $excluir /XD ($excluirDirs | ForEach-Object { Join-Path $src $_ }) | Out-Null
 if ($LASTEXITCODE -ge 8) { throw "robocopy falhou ($LASTEXITCODE)" }
-# Remove arquivos de depuração para deixar o pacote menor (mantidos na build)
-Get-ChildItem $dst -Recurse -Filter *.pdb | Remove-Item -Force
+
+# Runtime do Visual C++ (redistribuível) ao lado do executável: roda em PCs sem o pacote instalado
+$redist = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\2022\BuildTools\VC\Redist\MSVC'
+$crt = Get-ChildItem $redist -Directory | ForEach-Object { Join-Path $_.FullName 'x64\Microsoft.VC143.CRT' } |
+       Where-Object { Test-Path $_ } | Sort-Object | Select-Object -Last 1
+if ($crt) { Copy-Item (Join-Path $crt '*.dll') (Join-Path $dst 'bin\64bit') -Force } else { Write-Warning 'Runtime do VC++ não encontrado' }
+
+Copy-Item (Join-Path $root 'LICENSE') (Join-Path $dst 'LICENSE.txt') -Force
+Copy-Item (Join-Path $root 'THIRD_PARTY_NOTICES.md') (Join-Path $dst 'THIRD_PARTY_NOTICES.md') -Force
+# Remove arquivos de depuração do OBS para deixar o pacote menor (mantidos na build)
+Get-ChildItem $dst -Recurse -Filter *.pdb | Where-Object { $_.Name -ne 'StreamX.pdb' } | Remove-Item -Force
 Write-Host "rundir pronto em $dst"

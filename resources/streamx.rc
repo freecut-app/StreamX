@@ -1,0 +1,25 @@
+#pragma code_page(65001)
+IDI_ICON1 ICON "icons/streamx.ico"
+1 VERSIONINFO
+FILEVERSION 1,0,0,0
+PRODUCTVERSION 1,0,0,0
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "041604b0"
+    BEGIN
+      VALUE "CompanyName", "StreamX"
+      VALUE "FileDescription", "StreamX - gravação, clipes e transmissão ao vivo"
+      VALUE "FileVersion", "1.0.0"
+      VALUE "InternalName", "StreamX"
+      VALUE "LegalCopyright", "GPL-2.0-or-later"
+      VALUE "OriginalFilename", "StreamX.exe"
+      VALUE "ProductName", "StreamX"
+      VALUE "ProductVersion", "1.0.0"
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x416, 1200
+  END
+END

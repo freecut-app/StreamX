@@ -77,6 +77,11 @@ Recommendation recommend(const HardwareInfo &hw, const QString &goal)
 	targetH = qMin(targetH, sh);
 	r.outH = targetH & ~1;
 	r.outW = int(double(sw) * targetH / sh) & ~1;
+	// monitores ultrawide: na transmissão, a largura também não pode passar de 1920 (limite das plataformas)
+	if (goal == "transmitir" && r.outW > 1920) {
+		r.outW = 1920;
+		r.outH = int(1920.0 * sh / sw) & ~1;
+	}
 	r.reasons << QString("Saída %1×%2: mantém a proporção do seu monitor (%3×%4)%5.")
 			     .arg(r.outW).arg(r.outH).arg(sw).arg(sh)
 			     .arg(goal == "transmitir" ? " e respeita o limite de 1080p das plataformas" : "");

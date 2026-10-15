@@ -145,8 +145,12 @@ void GameMode::poll()
 {
 	const DetectedGame g = foreground();
 	const GamePreset *p = presetFor(g.exe);
-	// considera "jogo" um preset conhecido ou qualquer app em tela cheia (exceto o Explorer)
-	const bool isGame = p || (g.fullscreen && !g.exe.isEmpty() && g.exe.compare("explorer.exe", Qt::CaseInsensitive) != 0);
+	// "jogo" = preset conhecido, ou app em tela cheia que não seja navegador, player ou app comum
+	static const QStringList notGames = {"explorer.exe", "chrome.exe", "msedge.exe", "firefox.exe", "opera.exe", "brave.exe",
+					     "vlc.exe", "mpc-hc64.exe", "video.ui.exe", "applicationframehost.exe", "powerpnt.exe",
+					     "streamx.exe", "freecut.exe", "obs64.exe", "discord.exe", "spotify.exe", "teams.exe",
+					     "zoom.exe", "searchhost.exe", "shellexperiencehost.exe", "lockapp.exe"};
+	const bool isGame = p || (g.fullscreen && !g.exe.isEmpty() && !notGames.contains(g.exe.toLower()));
 	if (!isGame || g.exe.compare(game_.exe, Qt::CaseInsensitive) == 0)
 		return;
 	game_ = g;

@@ -1,0 +1,7 @@
+deps/
+tools/
+build/
+rundir/
+dist/
+tests/out/
+*.user

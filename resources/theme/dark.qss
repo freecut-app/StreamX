@@ -1,0 +1,14 @@
+/* StreamX — tema escuro: grafite, preto e azul elétrico */
+* { font-family: "Segoe UI"; font-size: 10pt; color: #e6e9f0; }
+QMainWindow, QWidget { background: #0f1116; }
+QStatusBar { background: #0a0c10; border-top: 1px solid #1f2430; color: #8a93a6; }
+QStatusBar QLabel { color: #8a93a6; padding: 0 8px; }
+QPushButton {
+  background: #1a1e27; border: 1px solid #2a3040; border-radius: 8px; padding: 6px 14px;
+}
+QPushButton:hover { border-color: #2f7bff; }
+QPushButton:pressed { background: #141821; }
+QPushButton:disabled { color: #4d5566; border-color: #1f2430; }
+QPushButton#recordButton { background: #1a1e27; font-weight: 600; min-width: 120px; }
+QPushButton#recordButton[active="true"] { background: #e5223e; border-color: #ff4d64; color: #fff; }
+QLabel#recTime { font-family: Consolas; font-size: 13pt; color: #9fb4d9; padding-left: 10px; }
